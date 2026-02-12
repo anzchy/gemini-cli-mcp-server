@@ -1,0 +1,149 @@
+# Publish to npm when a version tag is pushed.
+#
+# Usage:
+#   npm version patch          # bumps 5.0.0 → 5.0.1, commits, creates git tag v5.0.1
+#   git push && git push --tags  # triggers this workflow
+#
+# Required secrets (Settings → Secrets → Actions):
+#   NPM_TOKEN        - npm automation token (https://www.npmjs.com/settings/~/tokens)
+#   GEMINI_API_KEY   - (optional) enables integration tests against the real Gemini API
+
+name: Publish to npm
+
+on:
+  push:
+    tags: ['v*']
+
+# Prevent concurrent publishes for the same tag
+concurrency:
+  group: publish-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  # ── 1. Validate, lint, build, test ────────────────────────────────
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://registry.npmjs.org
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Verify the git tag matches the version in package.json.
+      # e.g. tag v5.0.1 must match package.json "version": "5.0.1"
+      - name: Verify tag matches package.json version
+        run: |
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          PKG_VERSION=$(node -p "require('./package.json').version")
+          if [ "$TAG_VERSION" != "$PKG_VERSION" ]; then
+            echo "::error::Tag version ($TAG_VERSION) does not match package.json version ($PKG_VERSION)"
+            exit 1
+          fi
+          echo "Version verified: $PKG_VERSION"
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build
+        run: npm run build
+
+      # Verify the built binary has the correct shebang and is executable
+      - name: Verify build output
+        run: |
+          if [ ! -f dist/enhanced-stdio-server.js ]; then
+            echo "::error::dist/enhanced-stdio-server.js not found"
+            exit 1
+          fi
+          HEAD=$(head -1 dist/enhanced-stdio-server.js)
+          if [ "$HEAD" != "#!/usr/bin/env node" ]; then
+            echo "::error::Missing shebang in dist/enhanced-stdio-server.js"
+            exit 1
+          fi
+          echo "Build output verified"
+
+      # Integration tests run only when GEMINI_API_KEY is available.
+      # They are skipped on forks or when the secret is not configured.
+      - name: Run tests
+        if: ${{ secrets.GEMINI_API_KEY != '' }}
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: npm test
+
+      # Dry-run pack to log exactly what will be published
+      - name: Preview package contents
+        run: npm pack --dry-run
+
+  # ── 2. Publish to npm ─────────────────────────────────────────────
+  publish:
+    needs: validate
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write   # needed for npm provenance
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://registry.npmjs.org
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Publish
+        run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  # ── 3. Create GitHub Release ──────────────────────────────────────
+  github-release:
+    needs: publish
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # full history for changelog generation
+
+      # Generate a changelog from commits since the previous tag
+      - name: Generate changelog
+        id: changelog
+        run: |
+          PREV_TAG=$(git tag --sort=-v:refname | head -2 | tail -1)
+          if [ -z "$PREV_TAG" ] || [ "$PREV_TAG" = "$GITHUB_REF_NAME" ]; then
+            echo "body=Initial release" >> "$GITHUB_OUTPUT"
+          else
+            LOG=$(git log --pretty=format:"- %s (%h)" "$PREV_TAG".."$GITHUB_REF_NAME" -- . ':!docs')
+            EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
+            echo "body<<$EOF" >> "$GITHUB_OUTPUT"
+            echo "$LOG" >> "$GITHUB_OUTPUT"
+            echo "$EOF" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: ${{ github.ref_name }}
+          body: |
+            ## What's Changed
+
+            ${{ steps.changelog.outputs.body }}
+
+            ## Install
+
+            ```bash
+            npx -y mcp-server-gemini
+            ```
+          draft: false
+          prerelease: ${{ contains(github.ref_name, '-') }}
