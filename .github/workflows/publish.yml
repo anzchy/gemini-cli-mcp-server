@@ -84,13 +84,7 @@ jobs:
           fi
           echo "Build output verified"
 
-      # Integration tests run only when GEMINI_API_KEY is available.
-      # They are skipped on forks or when the secret is not configured.
-      - name: Run tests
-        env:
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-        run: npm test
-
+      # Tests are handled by the CI workflow — no need to re-run here.
       # Dry-run pack to log exactly what will be published
       - name: Preview package contents
         run: npm pack --dry-run
