@@ -87,7 +87,6 @@ jobs:
       # Integration tests run only when GEMINI_API_KEY is available.
       # They are skipped on forks or when the secret is not configured.
       - name: Run tests
-        if: ${{ secrets.GEMINI_API_KEY != '' }}
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: npm test
