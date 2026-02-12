@@ -59,8 +59,8 @@ This is the critical part. The string `github:anzchy/gemini-cli-mcp-server` is a
 npm supports several specifier formats:
 
 ```
-mcp-server-gemini              → npm registry (by package name)
-mcp-server-gemini@5.0.0        → npm registry (specific version)
+@anzchy/mcp-server-gemini              → npm registry (by package name)
+@anzchy/mcp-server-gemini@5.0.0        → npm registry (specific version)
 github:anzchy/gemini-cli-mcp-server        → GitHub repo (default branch)
 github:anzchy/gemini-cli-mcp-server#main   → GitHub repo (specific branch)
 github:anzchy/gemini-cli-mcp-server#v5.0.0 → GitHub repo (specific tag)
@@ -213,7 +213,7 @@ npm installs the packed tarball into the npx cache directory (`~/.npm/_npx/<hash
 ```json
 {
   "bin": {
-    "mcp-server-gemini": "./dist/enhanced-stdio-server.js"
+    "@anzchy/mcp-server-gemini": "./dist/enhanced-stdio-server.js"
   }
 }
 ```
@@ -221,8 +221,8 @@ npm installs the packed tarball into the npx cache directory (`~/.npm/_npx/<hash
 npm creates a symlink (or cmd shim on Windows):
 
 ```
-~/.npm/_npx/<hash>/node_modules/.bin/mcp-server-gemini
-  → ~/.npm/_npx/<hash>/node_modules/mcp-server-gemini/dist/enhanced-stdio-server.js
+~/.npm/_npx/<hash>/node_modules/.bin/@anzchy/mcp-server-gemini
+  → ~/.npm/_npx/<hash>/node_modules/@anzchy/mcp-server-gemini/dist/enhanced-stdio-server.js
 ```
 
 ---
@@ -352,7 +352,7 @@ The MCP client writes a JSON-RPC message to the server's stdin:
 The server's `handleRequest` routes to the `initialize` handler, which responds on stdout:
 
 ```json
-{"jsonrpc":"2.0","id":1,"result":{"protocolVersion":"2024-11-05","serverInfo":{"name":"mcp-server-gemini-enhanced","version":"5.0.0"},"capabilities":{"tools":{},"resources":{},"prompts":{}}}}
+{"jsonrpc":"2.0","id":1,"result":{"protocolVersion":"2024-11-05","serverInfo":{"name":"@anzchy/mcp-server-gemini-enhanced","version":"5.0.0"},"capabilities":{"tools":{},"resources":{},"prompts":{}}}}
 ```
 
 ### Step 6c: Client Discovers Tools
@@ -423,7 +423,7 @@ The `github:` specifier without a pinned commit/tag means npm resolves to the **
 - **npm 7-9**: May re-resolve the git ref on each run, triggering a re-fetch if the remote HEAD has changed
 - **npm 10+**: More aggressive caching; may reuse a previously resolved commit
 
-This unpredictability is one reason why using the **npm registry** specifier (`npx -y mcp-server-gemini`) is more reliable for end users — npm versions are immutable and cached deterministically.
+This unpredictability is one reason why using the **npm registry** specifier (`npx -y @anzchy/mcp-server-gemini`) is more reliable for end users — npm versions are immutable and cached deterministically.
 
 ### Clearing the Cache
 
@@ -441,7 +441,7 @@ npm cache clean --force
 
 ## 9. Comparison: `github:` vs npm Registry
 
-| Aspect | `github:anzchy/gemini-cli-mcp-server` | `mcp-server-gemini` |
+| Aspect | `github:anzchy/gemini-cli-mcp-server` | `@anzchy/mcp-server-gemini` |
 |--------|----------------------------------------|---------------------|
 | **Source** | Git repository (GitHub) | npm registry |
 | **First-run speed** | Slow (clone + install devDeps + compile TypeScript) | Fast (download pre-built tarball) |
@@ -458,7 +458,7 @@ For the most reliable experience, use the npm package name:
 
 ```json
 {
-  "args": ["-y", "mcp-server-gemini"]
+  "args": ["-y", "@anzchy/mcp-server-gemini"]
 }
 ```
 
@@ -528,7 +528,7 @@ Here's the complete sequence from config to first API call:
 
 ## 12. Publishing to npm
 
-For end users to install via `npx -y mcp-server-gemini` (the fast, reliable path), the package must be published to the npm registry. Here's the full process.
+For end users to install via `npx -y @anzchy/mcp-server-gemini` (the fast, reliable path), the package must be published to the npm registry. Here's the full process.
 
 ### Prerequisites
 
@@ -599,7 +599,7 @@ npm notice 1.2kB  dist/types.js
 npm notice 5.0kB  README.md
 npm notice ...
 npm notice Tarball Details
-npm notice name:          mcp-server-gemini
+npm notice name:          @anzchy/mcp-server-gemini
 npm notice version:       5.0.0
 npm notice package size:  12.3 kB
 npm notice total files:   6
@@ -667,32 +667,32 @@ After publishing, users immediately get the new version:
 
 ```bash
 # Users run this — npm fetches the latest published version
-npx -y mcp-server-gemini
+npx -y @anzchy/mcp-server-gemini
 ```
 
 ### Verifying the Published Package
 
 ```bash
 # Check the latest version on npm
-npm view mcp-server-gemini version
+npm view @anzchy/mcp-server-gemini version
 
 # See all published versions
-npm view mcp-server-gemini versions --json
+npm view @anzchy/mcp-server-gemini versions --json
 
 # See what's in the published package
-npm pack mcp-server-gemini --dry-run
+npm pack @anzchy/mcp-server-gemini --dry-run
 
 # Install and test locally (simulates what users get)
-npx -y mcp-server-gemini --help
+npx -y @anzchy/mcp-server-gemini --help
 ```
 
 ### How npm Registry Differs from GitHub Install
 
-When a user runs `npx -y mcp-server-gemini`:
+When a user runs `npx -y @anzchy/mcp-server-gemini`:
 
 ```
-1. npx asks npm to resolve "mcp-server-gemini"
-2. npm queries https://registry.npmjs.org/mcp-server-gemini
+1. npx asks npm to resolve "@anzchy/mcp-server-gemini"
+2. npm queries https://registry.npmjs.org/@anzchy/mcp-server-gemini
 3. npm downloads the pre-built tarball (contains dist/, no src/)
 4. npm installs it in ~/.npm/_npx/<hash>/
 5. npm installs only production dependencies (@google/genai)
@@ -703,13 +703,13 @@ No git clone. No TypeScript compilation. No devDependencies. This is why the npm
 
 ### Scoped vs Unscoped Package Names
 
-The current package name is **unscoped**: `mcp-server-gemini`. This means anyone with an npm account can install it without a namespace prefix.
+The current package name is **unscoped**: `@anzchy/mcp-server-gemini`. This means anyone with an npm account can install it without a namespace prefix.
 
 If the name were taken, you could publish under a scope:
 
 ```json
 {
-  "name": "@anzchy/mcp-server-gemini"
+  "name": "@anzchy/@anzchy/mcp-server-gemini"
 }
 ```
 
@@ -759,7 +759,7 @@ Once the package is on npm, update the recommended install command in all docume
 to:
 
 ```json
-"args": ["-y", "mcp-server-gemini"]
+"args": ["-y", "@anzchy/mcp-server-gemini"]
 ```
 
 Keep the `github:` URL as a secondary option for developers who want the bleeding-edge version.

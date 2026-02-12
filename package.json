@@ -1,5 +1,5 @@
 {
-  "name": "mcp-server-gemini",
+  "name": "@anzchy/mcp-server-gemini",
   "version": "0.5.1",
   "description": "State-of-the-art MCP server for Google Gemini API with all latest features",
   "main": "dist/enhanced-stdio-server.js",

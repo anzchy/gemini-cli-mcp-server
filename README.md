@@ -1,7 +1,7 @@
 # Gemini MCP Server
 
 ![smithery badge](https://smithery.ai/badge/mcp-server-gemini)
-![npm version](https://img.shields.io/npm/v/mcp-server-gemini)
+![npm version](https://img.shields.io/npm/v/@anzchy/mcp-server-gemini)
 ![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue)
 ![MCP Version](https://img.shields.io/badge/MCP-2024--11--05-green)
@@ -241,7 +241,7 @@ Contributions are welcome! Please see our [Contributing Guide](CONTRIBUTING.md).
    ```json
    {
      "command": "node",
-     "args": ["--use-env-proxy", "/path/to/mcp-server-gemini/dist/enhanced-stdio-server.js"]
+     "args": ["--use-env-proxy", "/path/to/dist/enhanced-stdio-server.js"]
    }
    ```
 

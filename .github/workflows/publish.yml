@@ -154,7 +154,7 @@ jobs:
             ## Install
 
             ```bash
-            npx -y mcp-server-gemini
+            npx -y @anzchy/mcp-server-gemini
             ```
           draft: false
           prerelease: ${{ contains(github.ref_name, '-') }}
