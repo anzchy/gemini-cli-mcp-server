@@ -146,6 +146,14 @@ class EnhancedStdioMCPServer {
           };
           break;
 
+        case 'ping':
+          response = {
+            jsonrpc: '2.0',
+            id: request.id,
+            result: {}
+          };
+          break;
+
         default:
           if (!('id' in request)) {
             console.error(`Notification received: ${(request as any).method}`);
@@ -348,8 +356,8 @@ class EnhancedStdioMCPServer {
             model: {
               type: 'string',
               description: 'Embedding model to use',
-              enum: ['text-embedding-004', 'text-multilingual-embedding-002'],
-              default: 'text-embedding-004'
+              enum: ['gemini-embedding-001'],
+              default: 'gemini-embedding-001'
             }
           },
           required: ['text']
@@ -493,7 +501,7 @@ class EnhancedStdioMCPServer {
           jsonrpc: '2.0',
           id: request.id,
           error: {
-            code: -32601,
+            code: -32602,
             message: `Unknown tool: ${name}`
           }
         };
@@ -509,85 +517,71 @@ class EnhancedStdioMCPServer {
         throw new Error(`Unknown model: ${model}`);
       }
 
-      // Build generation config
-      const generationConfig: any = {
-        temperature: args.temperature ?? 1.0,
-        maxOutputTokens: args.maxTokens || 2048,
-        topK: args.topK || 40,
-        topP: args.topP || 0.95
-      };
+      // Build contents
+      let contents: any[] = [{
+        parts: [{ text: args.prompt }],
+        role: 'user'
+      }];
 
-      // Add JSON mode if requested
-      if (args.jsonMode) {
-        generationConfig.responseMimeType = 'application/json';
-        if (args.jsonSchema) {
-          generationConfig.responseSchema = args.jsonSchema;
-        }
-      }
-
-      // Build the request
-      const requestBody: any = {
-        model,
-        contents: [{
-          parts: [{
-            text: args.prompt
-          }],
-          role: 'user'
-        }],
-        generationConfig
-      };
-
-      // Add system instruction if provided
-      if (args.systemInstruction) {
-        requestBody.systemInstruction = {
-          parts: [{
-            text: args.systemInstruction
-          }]
-        };
-      }
-
-      // Add safety settings if provided
-      if (args.safetySettings) {
-        requestBody.safetySettings = args.safetySettings;
-      }
-
-      // Add grounding if requested and supported
-      if (args.grounding && modelInfo.features.includes('grounding')) {
-        requestBody.tools = [{
-          googleSearch: {}
-        }];
-      }
-
-      // Add thinking config for Gemini 3 models
-      if (args.thinkingLevel && modelInfo.thinking) {
-        generationConfig.thinkingConfig = {
-          thinkingLevel: args.thinkingLevel
-        };
-      }
-
-      // Handle conversation context
+      // Prepend conversation history if continuing a conversation
       if (args.conversationId) {
         const history = this.conversations.get(args.conversationId) || [];
         if (history.length > 0) {
-          requestBody.contents = [...history, ...requestBody.contents];
+          contents = [...history, ...contents];
         }
       }
 
-      // Call the API using the new SDK format
+      // Build SDK config (flat structure per @google/genai SDK pattern)
+      const config: any = {
+        temperature: args.temperature ?? 1.0,
+        maxOutputTokens: args.maxTokens || 2048,
+        topK: args.topK || 40,
+        topP: args.topP || 0.95,
+      };
+
+      if (args.systemInstruction) {
+        config.systemInstruction = args.systemInstruction;
+      }
+
+      if (args.jsonMode) {
+        config.responseMimeType = 'application/json';
+        if (args.jsonSchema) {
+          config.responseSchema = args.jsonSchema;
+        }
+      }
+
+      if (args.safetySettings) {
+        config.safetySettings = args.safetySettings;
+      }
+
+      if (args.grounding && modelInfo.features.includes('grounding')) {
+        config.tools = [{ googleSearch: {} }];
+      }
+
+      // Thinking config for Gemini 3 models (SDK expects uppercase level)
+      if (args.thinkingLevel && modelInfo.thinking) {
+        config.thinkingConfig = {
+          thinkingLevel: args.thinkingLevel.toUpperCase()
+        };
+      }
+
+      // Call the API using SDK config pattern
       const result = await this.genAI.models.generateContent({
         model,
-        ...requestBody
+        contents,
+        config,
       });
       const text = result.text || '';
 
-      // Update conversation history if needed
+      // Update conversation history with only the new messages
       if (args.conversationId) {
         const history = this.conversations.get(args.conversationId) || [];
-        history.push(...requestBody.contents);
         history.push({
-          parts: [{
-            text: text
-          }],
+          parts: [{ text: args.prompt }],
+          role: 'user'
+        });
+        history.push({
+          parts: [{ text: text }],
           role: 'model'
         });
         this.conversations.set(args.conversationId, history);
@@ -614,9 +608,12 @@ class EnhancedStdioMCPServer {
       return {
         jsonrpc: '2.0',
         id,
-        error: {
-          code: -32603,
-          message: error instanceof Error ? error.message : 'Internal error'
+        result: {
+          content: [{
+            type: 'text',
+            text: `Error: ${error instanceof Error ? error.message : 'Internal error'}`
+          }],
+          isError: true
         }
       };
     }
@@ -665,7 +662,13 @@ class EnhancedStdioMCPServer {
         }
       }
 
-      const requestConfig: any = {
+      // Build SDK config
+      const config: any = {};
+      if (args.mediaResolution) {
+        config.mediaResolution = args.mediaResolution;
+      }
+
+      const result = await this.genAI.models.generateContent({
         model,
         contents: [{
           parts: [
@@ -673,17 +676,9 @@ class EnhancedStdioMCPServer {
             imagePart
           ],
           role: 'user'
-        }]
-      };
-
-      // Add media resolution config if provided
-      if (args.mediaResolution) {
-        requestConfig.generationConfig = {
-          mediaResolution: args.mediaResolution
-        };
-      }
-
-      const result = await this.genAI.models.generateContent(requestConfig);
+        }],
+        config: Object.keys(config).length > 0 ? config : undefined,
+      });
 
       const text = result.text || '';
 
@@ -702,9 +697,12 @@ class EnhancedStdioMCPServer {
       return {
         jsonrpc: '2.0',
         id,
-        error: {
-          code: -32603,
-          message: `Image analysis failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+        result: {
+          content: [{
+            type: 'text',
+            text: `Image analysis failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+          }],
+          isError: true
         }
       };
     }
@@ -739,12 +737,16 @@ class EnhancedStdioMCPServer {
         }
       };
     } catch (error) {
+      console.error('Error in countTokens:', error);
       return {
         jsonrpc: '2.0',
         id,
-        error: {
-          code: -32603,
-          message: error instanceof Error ? error.message : 'Internal error'
+        result: {
+          content: [{
+            type: 'text',
+            text: `Token counting failed: ${error instanceof Error ? error.message : 'Internal error'}`
+          }],
+          isError: true
         }
       };
     }
@@ -794,7 +796,7 @@ class EnhancedStdioMCPServer {
 
   private async embedText(id: any, args: any): Promise<MCPResponse> {
     try {
-      const model = args.model || 'text-embedding-004';
+      const model = args.model || 'gemini-embedding-001';
       
       const result = await this.genAI.models.embedContent({
         model,
@@ -819,12 +821,16 @@ class EnhancedStdioMCPServer {
         }
       };
     } catch (error) {
+      console.error('Error in embedText:', error);
       return {
         jsonrpc: '2.0',
         id,
-        error: {
-          code: -32603,
-          message: error instanceof Error ? error.message : 'Internal error'
+        result: {
+          content: [{
+            type: 'text',
+            text: `Embedding failed: ${error instanceof Error ? error.message : 'Internal error'}`
+          }],
+          isError: true
         }
       };
     }
@@ -1032,7 +1038,7 @@ Generate embeddings for semantic search.
 
 **Parameters:**
 - text (required): Text to embed
-- model: text-embedding-004 or text-multilingual-embedding-002
+- model: gemini-embedding-001 (default)
 
 **Example:** "Generate embeddings for similarity search"
 
