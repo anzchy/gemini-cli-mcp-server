@@ -1,0 +1,23 @@
+{
+  "folders": [
+    {
+      "path": "."
+    }
+  ],
+  "settings": {
+    "vmark.excludeFolders": [
+      ".git",
+      "node_modules",
+      ".vmark"
+    ],
+    "vmark.showHiddenFiles": false,
+    "vmark.lastOpenTabs": [
+      "/Users/jackcheng/Documents/01_Coding/Front-end-projects/20260212-gemini-cli-mcp-server/mcp-server-gemini-main/README.md"
+    ],
+    "vmark.identity": {
+      "id": "bb73d6f2-96fe-4670-94a4-6ae035c9d604",
+      "createdAt": 1770899693099,
+      "trustLevel": "untrusted"
+    }
+  }
+}
