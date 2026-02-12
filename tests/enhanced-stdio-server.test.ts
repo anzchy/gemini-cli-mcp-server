@@ -58,14 +58,23 @@ function sendRequest(
   });
 }
 
-// Helper: spawn the server process
-function spawnServer(): ChildProcess {
+// Helper: spawn the server process, with optional extra env vars
+function spawnServer(extraEnv: Record<string, string> = {}): ChildProcess {
   const nodeArgs = ['--use-env-proxy', SERVER_PATH];
   const proc = spawn('node', nodeArgs, {
-    env: { ...process.env, GEMINI_API_KEY: SERVER_KEY },
+    env: { ...process.env, GEMINI_API_KEY: SERVER_KEY, ...extraEnv },
     stdio: ['pipe', 'pipe', 'pipe']
   });
   return proc;
+}
+
+// Helper: collect stderr output from the server process
+function collectStderr(proc: ChildProcess): string[] {
+  const lines: string[] = [];
+  proc.stderr!.on('data', (data: Buffer) => {
+    lines.push(data.toString());
+  });
+  return lines;
 }
 
 // Helper: assert that a response has a result (not an error)
@@ -112,7 +121,7 @@ describe('MCP Protocol Tests', () => {
       expect(res.id).toBe(0);
       expect(res.result.protocolVersion).toBe('2024-11-05');
       expect(res.result.serverInfo.name).toBe('mcp-server-gemini-enhanced');
-      expect(res.result.serverInfo.version).toBe('0.5.0');
+      expect(res.result.serverInfo.version).toBe('0.5.1');
       expect(res.result.capabilities).toHaveProperty('tools');
       expect(res.result.capabilities).toHaveProperty('resources');
       expect(res.result.capabilities).toHaveProperty('prompts');
@@ -458,7 +467,7 @@ describe('MCP Protocol Tests', () => {
       });
 
       const text = res.result.content[0].text;
-      expect(text).toContain('v0.5.0');
+      expect(text).toContain('v0.5.1');
       expect(text).toContain('Gemini 3');
     });
 
@@ -578,6 +587,102 @@ describe('MCP Protocol Tests', () => {
       expect(res.error).toBeDefined();
       expect(res.error.code).toBe(-32602);
     });
+  });
+});
+
+// ============================================================
+// DEFAULT MODEL CONFIGURATION TESTS
+// ============================================================
+
+describe('Default Model Configuration (GEMINI_DEFAULT_MODEL)', () => {
+  let server: ChildProcess;
+
+  afterEach((done) => {
+    if (server && !server.killed) {
+      server.on('exit', () => done());
+      server.kill();
+    } else {
+      done();
+    }
+  });
+
+  it('should use gemini-3-pro-preview when GEMINI_DEFAULT_MODEL is not set', async () => {
+    server = spawnServer();
+    await initServer(server);
+
+    const res = await sendRequest(server, {
+      jsonrpc: '2.0',
+      id: 1000,
+      method: 'tools/list',
+      params: {}
+    });
+
+    const genTool = res.result.tools.find((t: any) => t.name === 'generate_text');
+    expect(genTool.inputSchema.properties.model.default).toBe('gemini-3-pro-preview');
+
+    const imgTool = res.result.tools.find((t: any) => t.name === 'analyze_image');
+    expect(imgTool.inputSchema.properties.model.default).toBe('gemini-3-pro-preview');
+
+    const tokenTool = res.result.tools.find((t: any) => t.name === 'count_tokens');
+    expect(tokenTool.inputSchema.properties.model.default).toBe('gemini-3-pro-preview');
+  });
+
+  it('should use custom model from GEMINI_DEFAULT_MODEL for all tool schema defaults', async () => {
+    server = spawnServer({ GEMINI_DEFAULT_MODEL: 'gemini-3-flash-preview' });
+    await initServer(server);
+
+    const res = await sendRequest(server, {
+      jsonrpc: '2.0',
+      id: 1001,
+      method: 'tools/list',
+      params: {}
+    });
+
+    const genTool = res.result.tools.find((t: any) => t.name === 'generate_text');
+    expect(genTool.inputSchema.properties.model.default).toBe('gemini-3-flash-preview');
+
+    const imgTool = res.result.tools.find((t: any) => t.name === 'analyze_image');
+    expect(imgTool.inputSchema.properties.model.default).toBe('gemini-3-flash-preview');
+
+    const tokenTool = res.result.tools.find((t: any) => t.name === 'count_tokens');
+    expect(tokenTool.inputSchema.properties.model.default).toBe('gemini-3-flash-preview');
+  });
+
+  it('should fall back to gemini-3-pro-preview and warn for unknown GEMINI_DEFAULT_MODEL', async () => {
+    server = spawnServer({ GEMINI_DEFAULT_MODEL: 'nonexistent-model-xyz' });
+    const stderrLines = collectStderr(server);
+    await initServer(server);
+
+    const res = await sendRequest(server, {
+      jsonrpc: '2.0',
+      id: 1002,
+      method: 'tools/list',
+      params: {}
+    });
+
+    // Should fall back to gemini-3-pro-preview
+    const genTool = res.result.tools.find((t: any) => t.name === 'generate_text');
+    expect(genTool.inputSchema.properties.model.default).toBe('gemini-3-pro-preview');
+
+    // Should have emitted a warning on stderr
+    const allStderr = stderrLines.join('');
+    expect(allStderr).toContain('[warn]');
+    expect(allStderr).toContain('nonexistent-model-xyz');
+  });
+
+  it('should accept legacy model gemini-2.5-flash as GEMINI_DEFAULT_MODEL', async () => {
+    server = spawnServer({ GEMINI_DEFAULT_MODEL: 'gemini-2.5-flash' });
+    await initServer(server);
+
+    const res = await sendRequest(server, {
+      jsonrpc: '2.0',
+      id: 1003,
+      method: 'tools/list',
+      params: {}
+    });
+
+    const genTool = res.result.tools.find((t: any) => t.name === 'generate_text');
+    expect(genTool.inputSchema.properties.model.default).toBe('gemini-2.5-flash');
   });
 });
 

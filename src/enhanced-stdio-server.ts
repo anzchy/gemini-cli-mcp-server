@@ -49,6 +49,17 @@ const GEMINI_MODELS = {
   }
 };
 
+// Configurable default model via GEMINI_DEFAULT_MODEL env var.
+// Falls back to 'gemini-3-pro-preview' if unset or not a known model.
+const DEFAULT_MODEL = (() => {
+  const envModel = process.env.GEMINI_DEFAULT_MODEL;
+  if (envModel) {
+    if (envModel in GEMINI_MODELS) return envModel;
+    process.stderr.write(`[warn] GEMINI_DEFAULT_MODEL="${envModel}" is not a known model. Falling back to gemini-3-pro-preview.\n`);
+  }
+  return 'gemini-3-pro-preview';
+})();
+
 class EnhancedStdioMCPServer {
   private genAI: GoogleGenAI;
   private conversations: Map<string, any[]> = new Map();
@@ -97,7 +108,7 @@ class EnhancedStdioMCPServer {
               protocolVersion: '2024-11-05',
               serverInfo: {
                 name: 'mcp-server-gemini-enhanced',
-                version: '0.5.0'
+                version: '0.5.1'
               },
               capabilities: {
                 tools: {},
@@ -200,7 +211,7 @@ class EnhancedStdioMCPServer {
               type: 'string',
               description: 'Specific Gemini model to use',
               enum: Object.keys(GEMINI_MODELS),
-              default: 'gemini-3-pro-preview'
+              default: DEFAULT_MODEL
             },
             systemInstruction: {
               type: 'string',
@@ -294,7 +305,7 @@ class EnhancedStdioMCPServer {
               type: 'string',
               description: 'Vision-capable Gemini model',
               enum: ['gemini-3-pro-preview', 'gemini-3-flash-preview', 'gemini-2.5-pro', 'gemini-2.5-flash'],
-              default: 'gemini-3-pro-preview'
+              default: DEFAULT_MODEL
             },
             mediaResolution: {
               type: 'string',
@@ -319,7 +330,7 @@ class EnhancedStdioMCPServer {
               type: 'string',
               description: 'Model to use for token counting',
               enum: Object.keys(GEMINI_MODELS),
-              default: 'gemini-3-pro-preview'
+              default: DEFAULT_MODEL
             }
           },
           required: ['text']
@@ -506,7 +517,7 @@ class EnhancedStdioMCPServer {
 
   private async generateText(id: any, args: any): Promise<MCPResponse> {
     try {
-      const model = args.model || 'gemini-3-pro-preview';
+      const model = args.model || DEFAULT_MODEL;
       const modelInfo = GEMINI_MODELS[model as keyof typeof GEMINI_MODELS];
       
       if (!modelInfo) {
@@ -617,7 +628,7 @@ class EnhancedStdioMCPServer {
 
   private async analyzeImage(id: any, args: any): Promise<MCPResponse> {
     try {
-      const model = args.model || 'gemini-3-pro-preview';
+      const model = args.model || DEFAULT_MODEL;
 
       // Validate inputs
       if (!args.imageUrl && !args.imageBase64) {
@@ -706,7 +717,7 @@ class EnhancedStdioMCPServer {
 
   private async countTokens(id: any, args: any): Promise<MCPResponse> {
     try {
-      const model = args.model || 'gemini-3-pro-preview';
+      const model = args.model || DEFAULT_MODEL;
 
       const result = await this.genAI.models.countTokens({
         model,
@@ -954,7 +965,7 @@ class EnhancedStdioMCPServer {
       case 'overview':
         return `# Gemini MCP Server Help
 
-Welcome to the Gemini MCP Server v0.5.0! This server provides access to Google's Gemini AI models through Claude Desktop.
+Welcome to the Gemini MCP Server v0.5.1! This server provides access to Google's Gemini AI models through Claude Desktop.
 
 ## Available Tools
 1. **generate_text** - Generate text with advanced features

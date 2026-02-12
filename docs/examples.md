@@ -20,12 +20,15 @@
          "command": "npx",
          "args": ["-y", "github:anzchy/gemini-cli-mcp-server"],
          "env": {
-           "GEMINI_API_KEY": "your_api_key_here"
+           "GEMINI_API_KEY": "your_api_key_here",
+           "GEMINI_DEFAULT_MODEL": "gemini-3-pro-preview"
          }
        }
      }
    }
    ```
+
+   > **Tip:** `GEMINI_DEFAULT_MODEL` is optional. When set, it overrides the default model used by `generate_text`, `analyze_image`, and `count_tokens` when no explicit `model` argument is provided. Must be a known model name (see Supported Models). If omitted or invalid, falls back to `gemini-3-pro-preview`.
 
 3. **Restart Claude Desktop**
    - Close Claude Desktop completely
@@ -41,7 +44,8 @@
     "command": "npx",
     "args": ["-y", "github:anzchy/gemini-cli-mcp-server"],
     "env": {
-      "GEMINI_API_KEY": "your_api_key_here"
+      "GEMINI_API_KEY": "your_api_key_here",
+      "GEMINI_DEFAULT_MODEL": "gemini-3-pro-preview"
     }
   }
 }
@@ -51,13 +55,15 @@
 
 **Option A: CLI command (recommended)**
 ```bash
-claude mcp add --transport stdio --env GEMINI_API_KEY=your_api_key_here gemini \
-  -- npx -y github:anzchy/gemini-cli-mcp-server
+claude mcp add --transport stdio \
+  --env GEMINI_API_KEY=your_api_key_here \
+  --env GEMINI_DEFAULT_MODEL=gemini-3-pro-preview \
+  gemini -- npx -y github:anzchy/gemini-cli-mcp-server
 ```
 
 **Option B: JSON config via CLI**
 ```bash
-claude mcp add-json gemini '{"type":"stdio","command":"npx","args":["-y","github:anzchy/gemini-cli-mcp-server"],"env":{"GEMINI_API_KEY":"your_api_key_here"}}'
+claude mcp add-json gemini '{"type":"stdio","command":"npx","args":["-y","github:anzchy/gemini-cli-mcp-server"],"env":{"GEMINI_API_KEY":"your_api_key_here","GEMINI_DEFAULT_MODEL":"gemini-3-pro-preview"}}'
 ```
 
 **Option C: Edit `~/.claude.json` directly**
@@ -69,7 +75,8 @@ claude mcp add-json gemini '{"type":"stdio","command":"npx","args":["-y","github
       "command": "npx",
       "args": ["-y", "github:anzchy/gemini-cli-mcp-server"],
       "env": {
-        "GEMINI_API_KEY": "your_api_key_here"
+        "GEMINI_API_KEY": "your_api_key_here",
+        "GEMINI_DEFAULT_MODEL": "gemini-3-pro-preview"
       }
     }
   }
@@ -82,7 +89,9 @@ Use `--scope user` to make the server available across all projects, or `--scope
 
 **Option A: CLI command**
 ```bash
-codex mcp add gemini --env GEMINI_API_KEY=your_api_key_here \
+codex mcp add gemini \
+  --env GEMINI_API_KEY=your_api_key_here \
+  --env GEMINI_DEFAULT_MODEL=gemini-3-pro-preview \
   -- npx -y github:anzchy/gemini-cli-mcp-server
 ```
 
@@ -94,6 +103,7 @@ args = ["-y", "github:anzchy/gemini-cli-mcp-server"]
 
 [mcp_servers.gemini.env]
 GEMINI_API_KEY = "your_api_key_here"
+GEMINI_DEFAULT_MODEL = "gemini-3-pro-preview"
 ```
 
 Project-scoped config can be placed in `.codex/config.toml` (trusted projects only).
@@ -102,8 +112,10 @@ Project-scoped config can be placed in `.codex/config.toml` (trusted projects on
 
 **Option A: CLI command**
 ```bash
-gemini mcp add -e GEMINI_API_KEY=your_api_key_here gemini \
-  npx -y github:anzchy/gemini-cli-mcp-server
+gemini mcp add \
+  -e GEMINI_API_KEY=your_api_key_here \
+  -e GEMINI_DEFAULT_MODEL=gemini-3-pro-preview \
+  gemini npx -y github:anzchy/gemini-cli-mcp-server
 ```
 
 **Option B: Edit `~/.gemini/settings.json` directly**
@@ -114,7 +126,8 @@ gemini mcp add -e GEMINI_API_KEY=your_api_key_here gemini \
       "command": "npx",
       "args": ["-y", "github:anzchy/gemini-cli-mcp-server"],
       "env": {
-        "GEMINI_API_KEY": "your_api_key_here"
+        "GEMINI_API_KEY": "your_api_key_here",
+        "GEMINI_DEFAULT_MODEL": "gemini-3-pro-preview"
       }
     }
   }
@@ -132,7 +145,8 @@ Use the standard MCP stdio configuration:
   "command": "npx",
   "args": ["-y", "github:anzchy/gemini-cli-mcp-server"],
   "env": {
-    "GEMINI_API_KEY": "your_api_key_here"
+    "GEMINI_API_KEY": "your_api_key_here",
+    "GEMINI_DEFAULT_MODEL": "gemini-3-pro-preview"
   }
 }
 ```
@@ -278,6 +292,36 @@ Use the standard MCP stdio configuration:
    - Verify internet connection for API calls
    - Check your MCP client's logs for error details
 
+4. **Stale Version / Not Picking Up Updates**
+
+   `npx` caches packages locally. After the server is updated on GitHub or npm, your local `npx` may still run the old cached version. To force a fresh download:
+
+   ```bash
+   # Clear the npx cache
+   npx clear-npx-cache
+
+   # Clear the npm cache
+   npm cache clean --force
+   ```
+
+   Then restart your MCP client (Claude Desktop, Cursor, Claude Code, etc.). The next `npx -y github:anzchy/gemini-cli-mcp-server` invocation will pull the latest code.
+
+   **Symptoms of a stale cache:**
+   - New environment variables (e.g. `GEMINI_DEFAULT_MODEL`) have no effect
+   - New tools or parameters are missing from `tools/list`
+   - Bug fixes aren't applied despite being merged upstream
+
+   **Alternative — bypass npx caching entirely** by pointing to a local build:
+   ```json
+   {
+     "command": "node",
+     "args": ["--use-env-proxy", "/path/to/mcp-server-gemini/dist/enhanced-stdio-server.js"],
+     "env": {
+       "GEMINI_API_KEY": "your_api_key_here"
+     }
+   }
+   ```
+
 ## Best Practices
 
 1. **API Key Security**
@@ -306,7 +350,8 @@ For local development, point your MCP client to the local build:
       "command": "node",
       "args": ["/path/to/mcp-server-gemini/dist/enhanced-stdio-server.js"],
       "env": {
-        "GEMINI_API_KEY": "your_api_key_here"
+        "GEMINI_API_KEY": "your_api_key_here",
+        "GEMINI_DEFAULT_MODEL": "gemini-3-flash-preview"
       }
     }
   }
@@ -324,7 +369,8 @@ For local development, point your MCP client to the local build:
       "command": "npx",
       "args": ["-y", "github:anzchy/gemini-cli-mcp-server"],
       "env": {
-        "GEMINI_API_KEY": "your_gemini_key"
+        "GEMINI_API_KEY": "your_gemini_key",
+        "GEMINI_DEFAULT_MODEL": "gemini-3-pro-preview"
       }
     },
     "openai": {

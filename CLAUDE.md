@@ -71,9 +71,35 @@ MCP Client (stdin) → JSON-RPC line-delimited → EnhancedStdioMCPServer → @g
 - MCP protocol version: `2024-11-05`.
 - Max buffer increased to 10MB for large base64 image payloads.
 
+## Environment Variables
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `GEMINI_API_KEY` | Yes | Google Gemini API key |
+| `GEMINI_DEFAULT_MODEL` | No | Override the default model (must be a key in `GEMINI_MODELS`). Falls back to `gemini-3-pro-preview` with a stderr warning if the value is not a known model. |
+
 ## Code Style
 
 - TypeScript strict mode, async/await, ESM imports
 - JSDoc comments for public APIs
 - Follow existing patterns in the monolithic server file
 - Run `npm run lint && npm test` before submitting changes
+
+## Pre-Commit Documentation Check
+
+Before every git commit, scan these files for accuracy and update them if the change affects user-facing behavior (new env vars, new tools, changed defaults, new parameters, model changes, config format changes):
+
+- **Root-level**: `README.md`, `CLAUDE.md`
+- **docs/**: `docs/examples.md`, `docs/PARAMETERS_REFERENCE.md`, `docs/claude-desktop-setup.md`, `docs/troubleshooting.md`, `docs/development-guide.md`, `docs/implementation-notes.md`
+
+Ask: "Does this change affect any documented defaults, config examples, parameter tables, or setup instructions?" If yes, update the relevant docs in the same commit.
+
+## MCP Tool Call Convention
+
+When calling Gemini MCP tools (e.g. `generate_text`, `analyze_image`, `count_tokens`), **always explicitly include the `model` parameter** in the tool call so the user can see which model is being used in the tool invocation context. Example of what the user sees:
+
+```
+⏺ gemini - generate_text (MCP)(prompt: "Explain quantum computing", model: "gemini-2.5-flash", temperature: 0.3, maxTokens: 4096)
+```
+
+This transparency helps users understand cost/performance tradeoffs and troubleshoot model-specific behavior. Even when using the default model, include it explicitly.

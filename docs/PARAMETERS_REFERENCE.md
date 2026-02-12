@@ -2,6 +2,27 @@
 
 This guide provides detailed information on all available parameters for each tool.
 
+## Environment Variables
+
+These environment variables are set in your MCP client config (`env` block), not as tool parameters.
+
+| Variable | Required | Default | Description |
+|----------|----------|---------|-------------|
+| `GEMINI_API_KEY` | **Yes** | — | Your Google Gemini API key |
+| `GEMINI_DEFAULT_MODEL` | No | `gemini-3-pro-preview` | Override the default model for `generate_text`, `analyze_image`, and `count_tokens`. Must be a known model name (see [Model-Specific Features](#model-specific-features)). If the value is not recognized, the server logs a warning to stderr and falls back to `gemini-3-pro-preview`. |
+
+**Example configuration:**
+```json
+{
+  "env": {
+    "GEMINI_API_KEY": "your_api_key_here",
+    "GEMINI_DEFAULT_MODEL": "gemini-3-flash-preview"
+  }
+}
+```
+
+With this config, calling `generate_text` without an explicit `model` argument will use `gemini-3-flash-preview` instead of `gemini-3-pro-preview`. You can always override the default by passing `model` explicitly in any tool call.
+
 ## 1. generate_text Tool
 
 ### Required Parameters
@@ -11,7 +32,7 @@ This guide provides detailed information on all available parameters for each to
 
 | Parameter | Type | Default | Description | Example Values |
 |-----------|------|---------|-------------|----------------|
-| **model** | string | gemini-3-pro-preview | Gemini model to use | gemini-3-pro-preview, gemini-3-flash-preview, gemini-2.5-pro |
+| **model** | string | `GEMINI_DEFAULT_MODEL` or gemini-3-pro-preview | Gemini model to use | gemini-3-pro-preview, gemini-3-flash-preview, gemini-2.5-pro |
 | **systemInstruction** | string | none | System prompt to guide behavior | "You are a helpful Python tutor" |
 | **temperature** | number | 1.0 | Creativity level (0-2) | 0.1 (precise), 1.0 (balanced), 1.5 (creative) |
 | **maxTokens** | number | 2048 | Maximum output tokens | 100, 500, 1000, 4096, 65536 |
@@ -103,7 +124,7 @@ The `thinkingLevel` parameter controls reasoning depth for Gemini 3 models:
 ### Optional Parameters
 | Parameter | Type | Default | Description | Example Values |
 |-----------|------|---------|-------------|----------------|
-| **model** | string | gemini-3-pro-preview | Vision-capable model | gemini-3-pro-preview, gemini-3-flash-preview, gemini-2.5-pro, gemini-2.5-flash |
+| **model** | string | `GEMINI_DEFAULT_MODEL` or gemini-3-pro-preview | Vision-capable model | gemini-3-pro-preview, gemini-3-flash-preview, gemini-2.5-pro, gemini-2.5-flash |
 | **mediaResolution** | string | media_resolution_medium | Token allocation for image/video | media_resolution_low, media_resolution_medium, media_resolution_high |
 
 ### Media Resolution Details
@@ -141,7 +162,7 @@ The `mediaResolution` parameter controls how many tokens are allocated to proces
 ### Optional Parameters
 | Parameter | Type | Default | Description | Example Values |
 |-----------|------|---------|-------------|----------------|
-| **model** | string | gemini-3-pro-preview | Model for token counting | Any Gemini model |
+| **model** | string | `GEMINI_DEFAULT_MODEL` or gemini-3-pro-preview | Model for token counting | Any Gemini model |
 
 ### Examples
 ```
