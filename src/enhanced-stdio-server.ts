@@ -97,7 +97,7 @@ class EnhancedStdioMCPServer {
               protocolVersion: '2024-11-05',
               serverInfo: {
                 name: 'mcp-server-gemini-enhanced',
-                version: '5.0.0'
+                version: '0.5.0'
               },
               capabilities: {
                 tools: {},
@@ -284,11 +284,11 @@ class EnhancedStdioMCPServer {
             },
             imageUrl: {
               type: 'string',
-              description: 'URL of the image to analyze'
+              description: 'URL of the image to analyze. Either imageUrl or imageBase64 must be provided.'
             },
             imageBase64: {
               type: 'string',
-              description: 'Base64-encoded image data (alternative to URL)'
+              description: 'Base64-encoded image data. Either imageUrl or imageBase64 must be provided.'
             },
             model: {
               type: 'string',
@@ -302,11 +302,7 @@ class EnhancedStdioMCPServer {
               enum: ['media_resolution_low', 'media_resolution_medium', 'media_resolution_high']
             }
           },
-          required: ['prompt'],
-          oneOf: [
-            { required: ['imageUrl'] },
-            { required: ['imageBase64'] }
-          ]
+          required: ['prompt']
         }
       },
       {
@@ -958,7 +954,7 @@ class EnhancedStdioMCPServer {
       case 'overview':
         return `# Gemini MCP Server Help
 
-Welcome to the Gemini MCP Server v5.0.0! This server provides access to Google's Gemini AI models through Claude Desktop.
+Welcome to the Gemini MCP Server v0.5.0! This server provides access to Google's Gemini AI models through Claude Desktop.
 
 ## Available Tools
 1. **generate_text** - Generate text with advanced features
