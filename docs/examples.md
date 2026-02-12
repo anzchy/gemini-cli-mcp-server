@@ -12,6 +12,25 @@
    ```
 
 2. **Add Gemini MCP Configuration**
+
+   **Via npm (recommended):**
+   ```json
+   {
+     "mcpServers": {
+       "gemini": {
+         "type": "stdio",
+         "command": "npx",
+         "args": ["-y", "@anzchy/mcp-server-gemini"],
+         "env": {
+           "GEMINI_API_KEY": "your_api_key_here",
+           "GEMINI_DEFAULT_MODEL": "gemini-3-pro-preview"
+         }
+       }
+     }
+   }
+   ```
+
+   **Via GitHub source:**
    ```json
    {
      "mcpServers": {
@@ -37,6 +56,22 @@
 
 ### Cursor
 
+**Via npm (recommended):**
+```json
+{
+  "gemini": {
+    "type": "stdio",
+    "command": "npx",
+    "args": ["-y", "@anzchy/mcp-server-gemini"],
+    "env": {
+      "GEMINI_API_KEY": "your_api_key_here",
+      "GEMINI_DEFAULT_MODEL": "gemini-3-pro-preview"
+    }
+  }
+}
+```
+
+**Via GitHub source:**
 ```json
 {
   "gemini": {
@@ -53,17 +88,20 @@
 
 ### Claude Code
 
-**Option A: CLI command (recommended)**
+**Option A: CLI command via npm (recommended)**
+```bash
+claude mcp add --transport stdio \
+  --env GEMINI_API_KEY=your_api_key_here \
+  --env GEMINI_DEFAULT_MODEL=gemini-3-pro-preview \
+  gemini -- npx -y @anzchy/mcp-server-gemini
+```
+
+**Option B: CLI command via GitHub source**
 ```bash
 claude mcp add --transport stdio \
   --env GEMINI_API_KEY=your_api_key_here \
   --env GEMINI_DEFAULT_MODEL=gemini-3-pro-preview \
   gemini -- npx -y github:anzchy/gemini-cli-mcp-server
-```
-
-**Option B: JSON config via CLI**
-```bash
-claude mcp add-json gemini '{"type":"stdio","command":"npx","args":["-y","github:anzchy/gemini-cli-mcp-server"],"env":{"GEMINI_API_KEY":"your_api_key_here","GEMINI_DEFAULT_MODEL":"gemini-3-pro-preview"}}'
 ```
 
 **Option C: Edit `~/.claude.json` directly**
@@ -73,7 +111,7 @@ claude mcp add-json gemini '{"type":"stdio","command":"npx","args":["-y","github
     "gemini": {
       "type": "stdio",
       "command": "npx",
-      "args": ["-y", "github:anzchy/gemini-cli-mcp-server"],
+      "args": ["-y", "@anzchy/mcp-server-gemini"],
       "env": {
         "GEMINI_API_KEY": "your_api_key_here",
         "GEMINI_DEFAULT_MODEL": "gemini-3-pro-preview"
@@ -87,7 +125,15 @@ Use `--scope user` to make the server available across all projects, or `--scope
 
 ### Codex CLI
 
-**Option A: CLI command**
+**Option A: CLI command via npm (recommended)**
+```bash
+codex mcp add gemini \
+  --env GEMINI_API_KEY=your_api_key_here \
+  --env GEMINI_DEFAULT_MODEL=gemini-3-pro-preview \
+  -- npx -y @anzchy/mcp-server-gemini
+```
+
+**Option B: CLI command via GitHub source**
 ```bash
 codex mcp add gemini \
   --env GEMINI_API_KEY=your_api_key_here \
@@ -95,11 +141,11 @@ codex mcp add gemini \
   -- npx -y github:anzchy/gemini-cli-mcp-server
 ```
 
-**Option B: Edit `~/.codex/config.toml` directly**
+**Option C: Edit `~/.codex/config.toml` directly**
 ```toml
 [mcp_servers.gemini]
 command = "npx"
-args = ["-y", "github:anzchy/gemini-cli-mcp-server"]
+args = ["-y", "@anzchy/mcp-server-gemini"]
 
 [mcp_servers.gemini.env]
 GEMINI_API_KEY = "your_api_key_here"
@@ -110,7 +156,15 @@ Project-scoped config can be placed in `.codex/config.toml` (trusted projects on
 
 ### Gemini CLI
 
-**Option A: CLI command**
+**Option A: CLI command via npm (recommended)**
+```bash
+gemini mcp add \
+  -e GEMINI_API_KEY=your_api_key_here \
+  -e GEMINI_DEFAULT_MODEL=gemini-3-pro-preview \
+  gemini npx -y @anzchy/mcp-server-gemini
+```
+
+**Option B: CLI command via GitHub source**
 ```bash
 gemini mcp add \
   -e GEMINI_API_KEY=your_api_key_here \
@@ -118,13 +172,13 @@ gemini mcp add \
   gemini npx -y github:anzchy/gemini-cli-mcp-server
 ```
 
-**Option B: Edit `~/.gemini/settings.json` directly**
+**Option C: Edit `~/.gemini/settings.json` directly**
 ```json
 {
   "mcpServers": {
     "gemini": {
       "command": "npx",
-      "args": ["-y", "github:anzchy/gemini-cli-mcp-server"],
+      "args": ["-y", "@anzchy/mcp-server-gemini"],
       "env": {
         "GEMINI_API_KEY": "your_api_key_here",
         "GEMINI_DEFAULT_MODEL": "gemini-3-pro-preview"
@@ -138,7 +192,20 @@ Project-scoped config can be placed in `.gemini/settings.json` in your project d
 
 ### Other MCP Clients
 
-Use the standard MCP stdio configuration:
+**Via npm (recommended):**
+```json
+{
+  "type": "stdio",
+  "command": "npx",
+  "args": ["-y", "@anzchy/mcp-server-gemini"],
+  "env": {
+    "GEMINI_API_KEY": "your_api_key_here",
+    "GEMINI_DEFAULT_MODEL": "gemini-3-pro-preview"
+  }
+}
+```
+
+**Via GitHub source:**
 ```json
 {
   "type": "stdio",
@@ -367,7 +434,7 @@ For local development, point your MCP client to the local build:
     "gemini": {
       "type": "stdio",
       "command": "npx",
-      "args": ["-y", "github:anzchy/gemini-cli-mcp-server"],
+      "args": ["-y", "@anzchy/mcp-server-gemini"],
       "env": {
         "GEMINI_API_KEY": "your_gemini_key",
         "GEMINI_DEFAULT_MODEL": "gemini-3-pro-preview"
