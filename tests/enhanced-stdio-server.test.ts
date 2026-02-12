@@ -18,6 +18,10 @@ dotenv.config({ path: resolve(__dirname, '..', '.env') });
 const SERVER_PATH = resolve(__dirname, '..', 'dist', 'enhanced-stdio-server.js');
 const API_KEY = process.env.GEMINI_API_KEY;
 
+// A dummy key is sufficient for protocol tests — the server just needs
+// a non-empty value to start. Only integration tests need a real key.
+const SERVER_KEY = API_KEY || 'dummy-key-for-protocol-tests';
+
 // Detect proxy from environment for child processes
 const PROXY_URL = process.env.https_proxy || process.env.HTTPS_PROXY || process.env.http_proxy || process.env.HTTP_PROXY || '';
 
@@ -58,7 +62,7 @@ function sendRequest(
 function spawnServer(): ChildProcess {
   const nodeArgs = ['--use-env-proxy', SERVER_PATH];
   const proc = spawn('node', nodeArgs, {
-    env: { ...process.env, GEMINI_API_KEY: API_KEY },
+    env: { ...process.env, GEMINI_API_KEY: SERVER_KEY },
     stdio: ['pipe', 'pipe', 'pipe']
   });
   return proc;
@@ -88,10 +92,6 @@ async function initServer(proc: ChildProcess): Promise<Record<string, any>> {
 
 describe('MCP Protocol Tests', () => {
   let server: ChildProcess;
-
-  beforeAll(() => {
-    if (!API_KEY) throw new Error('GEMINI_API_KEY is required');
-  });
 
   afterEach((done) => {
     if (server && !server.killed) {
@@ -583,14 +583,13 @@ describe('MCP Protocol Tests', () => {
 
 // ============================================================
 // INTEGRATION TESTS — real Gemini API calls
+// Skipped automatically when GEMINI_API_KEY is not set.
 // ============================================================
 
-describe('Gemini API Integration Tests', () => {
-  let server: ChildProcess;
+const describeIntegration = API_KEY ? describe : describe.skip;
 
-  beforeAll(() => {
-    if (!API_KEY) throw new Error('GEMINI_API_KEY is required');
-  });
+describeIntegration('Gemini API Integration Tests', () => {
+  let server: ChildProcess;
 
   afterEach((done) => {
     if (server && !server.killed) {
