@@ -24,20 +24,20 @@ When the MCP server is properly configured, you can simply ask Claude to use the
 **Basic Usage:**
 ```
 "Use Gemini to explain quantum computing"
-"Ask Gemini 2.5 Pro to write a Python function for sorting"
+"Ask Gemini 3 Pro to write a Python function for sorting"
 "Have Gemini generate a creative story about space exploration"
 ```
 
 **Advanced Usage with Parameters:**
 ```
-"Use Gemini 2.5 Pro with high temperature (1.5) to write a creative poem"
+"Use Gemini 3 Pro with high temperature (1.5) to write a creative poem"
 "Ask Gemini to explain machine learning in JSON format with key concepts"
 "Use Gemini with Google Search grounding to tell me about today's news"
 ```
 
 **Example with All Features:**
 ```
-"Use Gemini 2.5 Pro to analyze this code and return a JSON response with:
+"Use Gemini 3 Pro to analyze this code and return a JSON response with:
 - code_quality (1-10 scale)
 - issues (array of problems)
 - suggestions (array of improvements)
@@ -63,8 +63,8 @@ Enable grounding for latest best practices."
 **Usage:**
 ```
 "Count tokens for this text using Gemini: [your text]"
-"How many tokens would this prompt use with gemini-2.5-flash?"
-"Check token count for my document with Gemini 2.5 Pro"
+"How many tokens would this prompt use with gemini-3-pro-preview?"
+"Check token count for my document with Gemini 3 Pro"
 ```
 
 ### 4. Model Listing Tool (`list_models`)
@@ -90,7 +90,7 @@ Enable grounding for latest best practices."
 ```
 "Generate embeddings for this text: [your text]"
 "Create semantic embeddings using Gemini for similarity search"
-"Get embeddings for these product descriptions using text-embedding-004"
+"Get embeddings for these product descriptions using gemini-embedding-001"
 ```
 
 ### 6. Help Tool (`get_help`)
@@ -141,10 +141,28 @@ Maintain context across multiple requests:
 "Continue the ml-chat-001 conversation and ask about neural networks"
 ```
 
+### Thinking Level Control (Gemini 3)
+Control reasoning depth per request:
+- `minimal`: Fastest, minimal reasoning (Flash only)
+- `low`: Light reasoning
+- `medium`: Moderate reasoning (Flash only)
+- `high`: Deep reasoning (default for thinking models)
+
+```
+"Use Gemini 3 Pro with thinkingLevel high to solve this complex problem"
+"Use Gemini 3 Flash with thinkingLevel minimal for a quick answer"
+```
+
+### Media Resolution (Image Analysis)
+Control token allocation for images:
+```
+"Analyze this diagram with mediaResolution high for maximum detail"
+```
+
 ### Temperature Control
 Adjust creativity:
 - Low (0.1-0.3): Focused, deterministic responses
-- Medium (0.5-0.8): Balanced responses (default: 0.7)
+- Medium (0.7-1.0): Balanced responses (default: 1.0 for Gemini 3)
 - High (1.0-2.0): Creative, diverse responses
 
 ```
@@ -161,21 +179,20 @@ Configure content filtering:
 ## Model Selection Guide
 
 ### For Complex Reasoning & Coding
-- **gemini-2.5-pro** - Best for complex problems, deep analysis
-- **gemini-2.0-pro-experimental** - Excellent for coding tasks
+- **gemini-3-pro-preview** (recommended) - State-of-the-art reasoning, agentic, multimodal
+- **gemini-2.5-pro** - Previous generation, 2M context window
 
 ### For Fast Responses
-- **gemini-2.5-flash** (recommended) - Best balance of speed and capability
-- **gemini-2.5-flash-lite** - Ultra-fast for simple tasks
+- **gemini-3-flash-preview** - Best balance of speed and intelligence, 4 thinking levels
+- **gemini-2.5-flash** - Previous generation fast model
 
 ### For Cost Efficiency
-- **gemini-2.0-flash-lite** - Most cost-effective
-- **gemini-1.5-flash** - Good for basic tasks
+- **gemini-2.5-flash-lite** - Ultra-fast, cost-efficient
 
 ## Tips for Best Results
 
 1. **Be Specific**: Instead of "use Gemini", specify the model and parameters you need
-2. **Use Thinking Models**: For complex problems, explicitly ask for gemini-2.5-pro or gemini-2.5-flash
+2. **Use Thinking Levels**: For complex problems, use `thinkingLevel: high` with Gemini 3 models
 3. **Enable Grounding**: For current information, ask to "enable grounding" or "use Google Search"
 4. **Structure Output**: Use JSON mode for structured data extraction
 5. **Monitor Tokens**: Use count_tokens before expensive operations
@@ -184,7 +201,7 @@ Configure content filtering:
 
 ### Code Review
 ```
-You: "Use Gemini 2.5 Pro to review this code for security issues, performance problems, and suggest improvements"
+You: "Use Gemini 3 Pro with thinkingLevel high to review this code for security issues, performance problems, and suggest improvements"
 ```
 
 ### Research with Grounding
@@ -194,7 +211,7 @@ You: "Use Gemini with grounding enabled to research the latest developments in q
 
 ### Creative Writing
 ```
-You: "Use Gemini 2.5 Flash with temperature 1.2 to write a short sci-fi story about AI consciousness"
+You: "Use Gemini 3 Flash with temperature 1.2 to write a short sci-fi story about AI consciousness"
 ```
 
 ### Multi-turn Conversation
@@ -211,7 +228,7 @@ If tools aren't working:
 2. Verify your API key is set correctly
 3. Look for errors in the logs
 4. Restart Claude Desktop
-5. Ensure you're using the latest version (v4.0.0)
+5. Ensure you're using the latest version (v5.0.0)
 
 ## Rate Limits
 

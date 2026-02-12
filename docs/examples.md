@@ -1,6 +1,8 @@
 # Examples and Usage Instructions
 
-## Claude Desktop Setup
+## MCP Client Setup
+
+### Claude Desktop
 
 1. **Locate the Configuration File**
    ```
@@ -14,6 +16,7 @@
    {
      "mcpServers": {
        "gemini": {
+         "type": "stdio",
          "command": "npx",
          "args": ["-y", "github:aliargun/mcp-server-gemini"],
          "env": {
@@ -27,76 +30,83 @@
 3. **Restart Claude Desktop**
    - Close Claude Desktop completely
    - Relaunch the application
-   - The Gemini provider should now be available
+   - The Gemini tools should now be available
 
-## Example Interactions
+### Cursor
 
-### Basic Usage
+```json
+{
+  "gemini": {
+    "type": "stdio",
+    "command": "npx",
+    "args": ["-y", "github:aliargun/mcp-server-gemini"],
+    "env": {
+      "GEMINI_API_KEY": "your_api_key_here"
+    }
+  }
+}
 ```
-Claude: I can now access Gemini through the MCP connection. Would you like me to compare our responses to a question?
 
-Human: Yes, please compare how we respond to: "Explain quantum computing in simple terms."
+### Claude Code
 
-Claude: I'll use both my own knowledge and ask Gemini through the MCP connection...
+**Option A: CLI command (recommended)**
+```bash
+claude mcp add --transport stdio --env GEMINI_API_KEY=your_api_key_here gemini \
+  -- npx -y github:aliargun/mcp-server-gemini
 ```
 
-### Advanced Features
+**Option B: JSON config via CLI**
+```bash
+claude mcp add-json gemini '{"type":"stdio","command":"npx","args":["-y","github:aliargun/mcp-server-gemini"],"env":{"GEMINI_API_KEY":"your_api_key_here"}}'
+```
 
-1. **Parameter Control**
-   ```json
-   {
-     "method": "generate",
-     "params": {
-       "prompt": "Your prompt here",
-       "temperature": 0.7,
-       "maxTokens": 1000
-     }
-   }
-   ```
+**Option C: Edit `~/.claude.json` directly**
+```json
+{
+  "mcpServers": {
+    "gemini": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "github:aliargun/mcp-server-gemini"],
+      "env": {
+        "GEMINI_API_KEY": "your_api_key_here"
+      }
+    }
+  }
+}
+```
 
-2. **Streaming Responses**
-   ```json
-   {
-     "method": "generate",
-     "params": {
-       "prompt": "Your prompt here",
-       "stream": true
-     }
-   }
-   ```
+Use `--scope user` to make the server available across all projects, or `--scope project` to share via `.mcp.json`.
 
-## Troubleshooting Common Setup Issues
+### Codex CLI
 
-1. **Config File Not Found**
-   - Make sure Claude Desktop has been run at least once
-   - Check the path for your operating system
-   - Create the file if it doesn't exist
+**Option A: CLI command**
+```bash
+codex mcp add gemini --env GEMINI_API_KEY=your_api_key_here \
+  -- npx -y github:aliargun/mcp-server-gemini
+```
 
-2. **API Key Issues**
-   - Get your API key from Google AI Studio
-   - Ensure the key has proper permissions
-   - Check for any whitespace in the key
+**Option B: Edit `~/.codex/config.toml` directly**
+```toml
+[mcp_servers.gemini]
+command = "npx"
+args = ["-y", "github:aliargun/mcp-server-gemini"]
 
-3. **Connection Issues**
-   - Verify Claude Desktop is running
-   - Check if port 3005 is available
-   - Look for any firewall restrictions
+[mcp_servers.gemini.env]
+GEMINI_API_KEY = "your_api_key_here"
+```
 
-## Best Practices
+Project-scoped config can be placed in `.codex/config.toml` (trusted projects only).
 
-1. **API Key Security**
-   - Never share your API key
-   - Use environment variables when possible
-   - Rotate keys periodically
+### Gemini CLI
 
-2. **Resource Management**
-   - Monitor API usage
-   - Implement rate limiting
-   - Handle long responses appropriately
+**Option A: CLI command**
+```bash
+gemini mcp add -e GEMINI_API_KEY=your_api_key_here gemini \
+  npx -y github:aliargun/mcp-server-gemini
+```
 
-## Advanced Configuration
-
-### Custom Port Configuration
+**Option B: Edit `~/.gemini/settings.json` directly**
 ```json
 {
   "mcpServers": {
@@ -104,24 +114,199 @@ Claude: I'll use both my own knowledge and ask Gemini through the MCP connection
       "command": "npx",
       "args": ["-y", "github:aliargun/mcp-server-gemini"],
       "env": {
-        "GEMINI_API_KEY": "your_api_key_here",
-        "PORT": "3006"
+        "GEMINI_API_KEY": "your_api_key_here"
       }
     }
   }
 }
 ```
 
-### Development Setup
+Project-scoped config can be placed in `.gemini/settings.json` in your project directory. Use `--scope user` for global config.
+
+### Other MCP Clients
+
+Use the standard MCP stdio configuration:
+```json
+{
+  "type": "stdio",
+  "command": "npx",
+  "args": ["-y", "github:aliargun/mcp-server-gemini"],
+  "env": {
+    "GEMINI_API_KEY": "your_api_key_here"
+  }
+}
+```
+
+## Example Interactions
+
+### Basic Text Generation
+```
+"Use Gemini to explain quantum computing in simple terms"
+"Use Gemini 3 Pro to write a Python sorting function"
+```
+
+### With Thinking Level Control (Gemini 3)
+```
+"Use Gemini 3 Pro with thinkingLevel high to solve this math proof"
+"Use Gemini 3 Flash with thinkingLevel minimal for a quick answer"
+```
+
+### With Temperature Control
+```
+"Use Gemini with temperature 0.1 for precise factual analysis"
+"Use Gemini with temperature 1.5 for creative writing"
+```
+
+### JSON Mode
+```
+"Use Gemini in JSON mode to analyze sentiment and return {sentiment, confidence, keywords}"
+```
+
+### JSON-RPC Tool Call Examples
+
+#### generate_text with thinkingLevel
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "generate_text",
+    "arguments": {
+      "prompt": "Explain the P vs NP problem",
+      "model": "gemini-3-pro-preview",
+      "temperature": 1.0,
+      "thinkingLevel": "high",
+      "maxTokens": 4096
+    }
+  }
+}
+```
+
+#### generate_text with JSON mode and grounding
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 2,
+  "method": "tools/call",
+  "params": {
+    "name": "generate_text",
+    "arguments": {
+      "prompt": "What are the latest AI developments?",
+      "model": "gemini-3-pro-preview",
+      "jsonMode": true,
+      "jsonSchema": {
+        "type": "object",
+        "properties": {
+          "developments": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "summary": { "type": "string" }
+        }
+      },
+      "grounding": true
+    }
+  }
+}
+```
+
+#### analyze_image with mediaResolution
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 3,
+  "method": "tools/call",
+  "params": {
+    "name": "analyze_image",
+    "arguments": {
+      "prompt": "Describe every detail in this architecture diagram",
+      "imageUrl": "https://example.com/diagram.png",
+      "model": "gemini-3-pro-preview",
+      "mediaResolution": "media_resolution_high"
+    }
+  }
+}
+```
+
+#### count_tokens
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 4,
+  "method": "tools/call",
+  "params": {
+    "name": "count_tokens",
+    "arguments": {
+      "text": "Your text to count tokens for",
+      "model": "gemini-3-pro-preview"
+    }
+  }
+}
+```
+
+#### embed_text
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 5,
+  "method": "tools/call",
+  "params": {
+    "name": "embed_text",
+    "arguments": {
+      "text": "Machine learning is fascinating",
+      "model": "gemini-embedding-001"
+    }
+  }
+}
+```
+
+## Troubleshooting Common Setup Issues
+
+1. **Config File Not Found**
+   - Make sure your MCP client has been run at least once
+   - Check the path for your operating system
+   - Create the file if it doesn't exist
+
+2. **API Key Issues**
+   - Get your API key from [Google AI Studio](https://makersuite.google.com/app/apikey)
+   - Ensure the key has proper permissions
+   - Check for any whitespace in the key
+
+3. **Connection Issues**
+   - This server uses stdio (not WebSocket) — no port configuration needed
+   - Verify internet connection for API calls
+   - Check your MCP client's logs for error details
+
+## Best Practices
+
+1. **API Key Security**
+   - Never share your API key
+   - Use environment variables
+   - Rotate keys periodically
+
+2. **Model Selection**
+   - Use `gemini-3-pro-preview` for complex reasoning (default)
+   - Use `gemini-3-flash-preview` for fast responses with thinking control
+   - Use `gemini-2.5-flash` for legacy compatibility
+
+3. **Thinking Level**
+   - Use `high` for complex problems requiring deep reasoning
+   - Use `low` for simpler tasks where some reasoning helps
+   - Use `minimal` (Flash only) for fastest responses
+
+## Development Setup
+
+For local development, point your MCP client to the local build:
 ```json
 {
   "mcpServers": {
     "gemini": {
+      "type": "stdio",
       "command": "node",
-      "args": ["/path/to/local/mcp-server-gemini/dist/index.js"],
+      "args": ["/path/to/mcp-server-gemini/dist/enhanced-stdio-server.js"],
       "env": {
-        "GEMINI_API_KEY": "your_api_key_here",
-        "DEBUG": "true"
+        "GEMINI_API_KEY": "your_api_key_here"
       }
     }
   }
@@ -135,6 +320,7 @@ Claude: I'll use both my own knowledge and ask Gemini through the MCP connection
 {
   "mcpServers": {
     "gemini": {
+      "type": "stdio",
       "command": "npx",
       "args": ["-y", "github:aliargun/mcp-server-gemini"],
       "env": {
@@ -142,6 +328,7 @@ Claude: I'll use both my own knowledge and ask Gemini through the MCP connection
       }
     },
     "openai": {
+      "type": "stdio",
       "command": "npx",
       "args": ["-y", "@mzxrai/mcp-openai@latest"],
       "env": {
@@ -152,19 +339,11 @@ Claude: I'll use both my own knowledge and ask Gemini through the MCP connection
 }
 ```
 
-## Verification Steps
+## Verification
 
-1. Check Server Status
-```bash
-curl -I http://localhost:3005
+Test the MCP integration by asking your client:
 ```
-
-2. Test WebSocket Connection
-```bash
-wscat -c ws://localhost:3005
-```
-
-3. Verify MCP Integration
-```
-Ask Claude: "Can you verify if the Gemini MCP connection is working?"
+"List all Gemini models"
+"Get help on using Gemini"
+"Use Gemini to say hello"
 ```

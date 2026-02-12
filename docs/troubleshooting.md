@@ -4,23 +4,22 @@
 
 ### Connection Problems
 
-1. Port Already in Use
-```bash
-Error: EADDRINUSE: address already in use :::3005
+1. Server Not Starting
+```
+Error: GEMINI_API_KEY environment variable is required
 ```
 Solution:
-- Check if another process is using port 3005
-- Kill the existing process
-- Change the port number
+- Ensure `GEMINI_API_KEY` is set in your MCP client config's `env` section
+- Verify the API key is valid
 
-2. WebSocket Connection Failed
+2. MCP Client Can't Find Server
 ```
-Error: Connection refused
+Error: Cannot connect to MCP server
 ```
 Solution:
-- Verify server is running
-- Check firewall settings
-- Confirm correct port
+- Verify Node.js is installed and in PATH
+- Check that `npx` can resolve the package
+- Restart your MCP client completely
 
 ### API Issues
 
@@ -29,8 +28,8 @@ Solution:
 Error: Invalid API key provided
 ```
 Solution:
-- Check GEMINI_API_KEY environment variable
-- Verify API key is valid
+- Check GEMINI_API_KEY in your MCP client config
+- Verify API key is valid at [Google AI Studio](https://makersuite.google.com/app/apikey)
 - Regenerate API key if needed
 
 2. Rate Limiting
@@ -38,9 +37,27 @@ Solution:
 Error: Resource exhausted
 ```
 Solution:
-- Implement backoff strategy
-- Check quota limits
+- Reduce request frequency
+- Check quota limits in Google Cloud Console
 - Upgrade API tier if needed
+
+3. Model Not Found
+```
+Error: Unknown model: gemini-xyz
+```
+Solution:
+- Use `list_models` tool to see available models
+- Default model is `gemini-3-pro-preview`
+- Legacy models: `gemini-2.5-pro`, `gemini-2.5-flash`, `gemini-2.5-flash-lite`
+
+4. Fetch Failed / Network Timeout
+```
+Error: fetch failed
+```
+Solution:
+- Check internet connectivity
+- If behind a proxy, ensure Node.js can reach Google APIs
+- On Node.js 24+, use `--use-env-proxy` flag if `http_proxy`/`https_proxy` is set
 
 ## Protocol Errors
 
@@ -49,49 +66,45 @@ Solution:
 Error: Parse error (-32700)
 ```
 Solution:
-- Check JSON syntax
-- Verify message format
-- Validate against schema
+- Each message must be a complete JSON object on a single line
+- Verify JSON syntax
 
 2. Method Not Found
 ```json
 Error: Method not found (-32601)
 ```
 Solution:
-- Check method name
-- Verify protocol version
-- Update capabilities
+- Supported methods: `initialize`, `tools/list`, `tools/call`, `resources/list`, `resources/read`, `prompts/list`
+- Check spelling
 
 ## Debugging Steps
 
-1. Enable Debug Mode
+1. Test the server directly via stdin/stdout:
 ```bash
-DEBUG=true npm start
+echo '{"jsonrpc":"2.0","id":0,"method":"initialize","params":{}}' | \
+  GEMINI_API_KEY=your_key node dist/enhanced-stdio-server.js 2>/dev/null
 ```
 
-2. Check Logs
+2. Check stderr for debug output:
 ```bash
-tail -f debug.log
+echo '{"jsonrpc":"2.0","id":0,"method":"initialize","params":{}}' | \
+  GEMINI_API_KEY=your_key node dist/enhanced-stdio-server.js 2>&1 1>/dev/null
 ```
 
-3. Monitor WebSocket Traffic
-```bash
-wscat -c ws://localhost:3005
-```
+3. Check MCP client logs:
+   - Claude Desktop (macOS): `~/Library/Logs/Claude/`
+   - Cursor: Check developer console
 
 ## Getting Help
 
 1. Check Documentation
-- Review implementation notes
-- Check protocol specification
-- Read troubleshooting guide
+   - Review [examples](examples.md)
+   - Check [implementation notes](implementation-notes.md)
 
 2. Open Issues
-- Search existing issues
-- Provide error details
-- Include reproduction steps
+   - Search existing issues at https://github.com/aliargun/mcp-server-gemini/issues
+   - Provide error details and reproduction steps
 
-3. Community Support
-- Join discussions
-- Ask questions
-- Share solutions
+3. Verify Your Setup
+   - Ask your MCP client: "List all Gemini models"
+   - If this works, the connection is healthy

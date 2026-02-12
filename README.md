@@ -6,16 +6,18 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue)](https://www.typescriptlang.org/)
 [![MCP Version](https://img.shields.io/badge/MCP-2024--11--05-green)](https://modelcontextprotocol.io/)
 
-A powerful MCP (Model Context Protocol) server that brings Google's latest Gemini AI models to your favorite development environment. Access Gemini 2.5's thinking capabilities, vision analysis, embeddings, and more through a seamless integration.
+A powerful MCP (Model Context Protocol) server that brings Google's latest Gemini AI models to your favorite development environment. Access Gemini 3's state-of-the-art reasoning, configurable thinking depth, vision analysis, embeddings, and more through a seamless integration.
 
-🚀 **Works with**: Claude Desktop, Cursor, Windsurf, and any MCP-compatible client  
-🎯 **Why use this**: Get Gemini's cutting-edge AI features directly in your IDE with full parameter control  
+🚀 **Works with**: Claude Desktop, Cursor, Windsurf, and any MCP-compatible client
+🎯 **Why use this**: Get Gemini's cutting-edge AI features directly in your IDE with full parameter control
 📚 **Self-documenting**: Built-in help system means you never need to leave your editor
 
 ## Features
 
 - **6 Powerful Tools**: Text generation, image analysis, token counting, model listing, embeddings, and self-documenting help
-- **Latest Gemini Models**: Support for Gemini 2.5 series with thinking capabilities
+- **Latest Gemini 3 Models**: `gemini-3-pro-preview` and `gemini-3-flash-preview` with configurable thinking depth
+- **Thinking Level Control**: Adjust reasoning depth per request (minimal/low/medium/high)
+- **Media Resolution Control**: Configure token allocation for image/video inputs
 - **Advanced Features**: JSON mode, Google Search grounding, system instructions, conversation memory
 - **Full MCP Protocol**: Standard stdio communication for seamless integration with any MCP client
 - **Self-Documenting**: Built-in help system - no external docs needed
@@ -23,13 +25,13 @@ A powerful MCP (Model Context Protocol) server that brings Google's latest Gemin
 
 ### Supported Models
 
-| Model | Context | Features | Best For |
-|-------|---------|----------|----------|
-| gemini-2.5-pro | 2M tokens | Thinking, JSON, Grounding | Complex reasoning |
-| gemini-2.5-flash ⭐ | 1M tokens | Thinking, JSON, Grounding | General use |
-| gemini-2.5-flash-lite | 1M tokens | Thinking, JSON | Fast responses |
-| gemini-2.0-flash | 1M tokens | JSON, Grounding | Standard tasks |
-| gemini-1.5-pro | 2M tokens | JSON | Legacy support |
+| Model | Context | Max Output | Thinking Levels | Best For |
+|-------|---------|------------|-----------------|----------|
+| gemini-3-pro-preview ⭐ | 1M tokens | 64K tokens | low, high | Complex reasoning, agentic |
+| gemini-3-flash-preview | 1M tokens | 64K tokens | minimal, low, medium, high | Fast + smart |
+| gemini-2.5-pro | 2M tokens | — | — | Legacy complex tasks |
+| gemini-2.5-flash | 1M tokens | — | — | Legacy general use |
+| gemini-2.5-flash-lite | 1M tokens | — | — | Legacy cost-efficient |
 
 ## Quick Start
 
@@ -120,17 +122,18 @@ Once configured, you can use natural language in your MCP client to access Gemin
 
 ### Advanced Examples
 ```
-"Use Gemini 2.5 Pro with temperature 0.3 to review this code"
+"Use Gemini 3 Pro with thinkingLevel high to review this code"
 "Use Gemini in JSON mode to extract key points with schema {title, summary, tags}"
 "Use Gemini with grounding to research the latest in quantum computing"
+"Analyze this image with mediaResolution high for maximum detail"
 ```
 
 📖 **[See the complete Usage Guide](USAGE_GUIDE.md)** for detailed examples and advanced features.
 
 ## Why Gemini MCP Server?
 
-- **Access Latest Models**: Use Gemini 2.5 with thinking capabilities - Google's most advanced models
-- **Full Feature Set**: All Gemini API features including JSON mode, grounding, and system instructions  
+- **Access Latest Models**: Use Gemini 3 with configurable thinking depth - Google's most advanced models
+- **Full Feature Set**: All Gemini API features including JSON mode, grounding, thinkingLevel, mediaResolution, and system instructions
 - **Easy Setup**: One-line npx installation, no complex configuration needed
 - **Production Ready**: Comprehensive error handling, TypeScript types, and extensive documentation
 - **Active Development**: Regular updates with new Gemini features as they're released
@@ -140,7 +143,7 @@ Once configured, you can use natural language in your MCP client to access Gemin
 - **[Usage Guide](USAGE_GUIDE.md)** - Complete guide on using all tools and features
 - **[Parameters Reference](PARAMETERS_REFERENCE.md)** - Detailed documentation of all parameters
 - **[Quick Reference](QUICK_REFERENCE.md)** - Quick commands cheat sheet
-- **[Enhanced Features](ENHANCED_FEATURES.md)** - Detailed list of v4.0.0 capabilities
+- **[Enhanced Features](ENHANCED_FEATURES.md)** - Detailed list of v5.0.0 capabilities
 - [Claude Desktop Setup Guide](docs/claude-desktop-setup.md) - Detailed setup instructions
 - [Examples and Usage](docs/examples.md) - Usage examples and advanced configuration
 - [Implementation Notes](docs/implementation-notes.md) - Technical implementation details

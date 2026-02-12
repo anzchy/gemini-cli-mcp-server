@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.0.0] - 2026-02-12
+
+### Added
+- **Gemini 3 series models**: `gemini-3-pro-preview` (default) and `gemini-3-flash-preview`
+- `thinkingLevel` parameter for `generate_text` — configurable thinking depth (minimal/low/medium/high)
+- `mediaResolution` parameter for `analyze_image` — control token allocation for images (low/medium/high)
+- `gemini-embedding-001` as the new default embedding model
+- Comprehensive test suite (46 tests) with real Gemini API integration tests covering all tools and parameter combinations
+
+### Changed
+- **BREAKING**: Default model changed from `gemini-2.5-flash` to `gemini-3-pro-preview`
+- **BREAKING**: Default temperature changed from `0.7` to `1.0` (Google's recommendation for Gemini 3)
+- **BREAKING**: Default embedding model changed from `text-embedding-004` to `gemini-embedding-001`
+- Updated `@google/genai` dependency from `^1.8.0` to `^1.41.0` (required for `thinkingConfig` support)
+- Server version bumped to `5.0.0`
+- All help content, resources, and prompts updated for Gemini 3
+- `analyze_image` vision model enum now includes Gemini 3 models
+- Temperature fallback uses nullish coalescing (`??`) to allow explicit `temperature: 0`
+
+### Removed
+- Deprecated Gemini 2.0 series models (`gemini-2.0-flash`, `gemini-2.0-flash-lite`, `gemini-2.0-pro-experimental`) — EOL 2026-03-31
+- Deprecated Gemini 1.5 series models (`gemini-1.5-pro`, `gemini-1.5-flash`)
+- Old dead test files referencing removed `handlers.ts` and `server.ts` modules
+
 ## [4.2.2] - 2025-07-08
 
 ### Fixed

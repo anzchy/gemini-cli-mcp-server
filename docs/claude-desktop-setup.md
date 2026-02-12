@@ -41,6 +41,7 @@ The configuration file location depends on your operating system:
 {
   "mcpServers": {
     "gemini": {
+      "type": "stdio",
       "command": "npx",
       "args": ["-y", "github:aliargun/mcp-server-gemini"],
       "env": {
@@ -56,36 +57,20 @@ The configuration file location depends on your operating system:
 1. Save the configuration file
 2. Restart Claude Desktop completely
 3. Test the connection by asking Claude:
-   "Can you verify if the Gemini MCP connection is working?"
+   "Can you list the available Gemini models?"
 
 ## Advanced Configuration
 
-### Debug Mode
+### Local Development Build
 ```json
 {
   "mcpServers": {
     "gemini": {
-      "command": "npx",
-      "args": ["-y", "github:aliargun/mcp-server-gemini"],
+      "type": "stdio",
+      "command": "node",
+      "args": ["/path/to/mcp-server-gemini/dist/enhanced-stdio-server.js"],
       "env": {
-        "GEMINI_API_KEY": "your_api_key_here",
-        "DEBUG": "true"
-      }
-    }
-  }
-}
-```
-
-### Custom Port
-```json
-{
-  "mcpServers": {
-    "gemini": {
-      "command": "npx",
-      "args": ["-y", "github:aliargun/mcp-server-gemini"],
-      "env": {
-        "GEMINI_API_KEY": "your_api_key_here",
-        "PORT": "3006"
+        "GEMINI_API_KEY": "your_api_key_here"
       }
     }
   }
@@ -102,21 +87,21 @@ The configuration file location depends on your operating system:
    - Create an empty JSON file if needed
 
 2. **Connection Errors**
-   - Check if the port is available
-   - Verify internet connection
-   - Check firewall settings
+   - The server uses stdio — no port or network configuration needed
+   - Verify your internet connection (needed for Gemini API calls)
+   - Check Claude Desktop logs for error details
 
 3. **API Key Issues**
    - Verify the key is correct
    - Ensure no whitespace in the key
-   - Check API key permissions
+   - Check API key permissions in Google AI Studio
 
 ### Error Messages
 
 1. **"Cannot connect to MCP server"**
-   - Check if the server is running
-   - Verify port settings
-   - Check network connectivity
+   - Check if npx can resolve the package
+   - Verify Node.js is installed and in PATH
+   - Check Claude Desktop logs: `~/Library/Logs/Claude/` (macOS)
 
 2. **"Invalid API key"**
    - Verify API key in config

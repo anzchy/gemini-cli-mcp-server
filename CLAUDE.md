@@ -49,7 +49,7 @@ MCP Client (stdin) → JSON-RPC line-delimited → EnhancedStdioMCPServer → @g
 | `analyze_image` | `analyzeImage()` | Vision analysis via URL or base64 input, mediaResolution control |
 | `count_tokens` | `countTokens()` | Token counting for cost estimation |
 | `list_models` | `listModels()` | List available Gemini models with optional filtering |
-| `embed_text` | `embedText()` | Text embeddings (text-embedding-004, text-multilingual-embedding-002) |
+| `embed_text` | `embedText()` | Text embeddings (gemini-embedding-001) |
 | `get_help` | `getHelp()` | Self-documenting help system |
 
 ### Resources (gemini:// URIs)

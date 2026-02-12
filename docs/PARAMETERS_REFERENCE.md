@@ -133,11 +133,6 @@ The `mediaResolution` parameter controls how many tokens are allocated to proces
 "Use Gemini 3 Pro with mediaResolution high to analyze this architecture diagram and explain the components"
 ```
 
-#### Quick Classification with Low Resolution
-```
-"Use Gemini 3 Flash with mediaResolution low to classify this image"
-```
-
 ## 3. count_tokens Tool
 
 ### Required Parameters
