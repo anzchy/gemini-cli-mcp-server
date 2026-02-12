@@ -12,7 +12,13 @@ name: Publish to npm
 
 on:
   push:
-    tags: ['v*']
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Git tag to publish (e.g. v0.5.1). Must already exist.'
+        required: true
 
 # Prevent concurrent publishes for the same tag
 concurrency:
@@ -23,6 +29,7 @@ jobs:
   # ── 1. Validate, lint, build, test ────────────────────────────────
   validate:
     runs-on: ubuntu-latest
+    timeout-minutes: 8
     steps:
       - uses: actions/checkout@v4
 
@@ -34,11 +41,22 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # Resolve the tag: from push event or workflow_dispatch input
+      - name: Resolve tag
+        id: tag
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "version=${{ github.event.inputs.tag }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "version=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
+          fi
+
       # Verify the git tag matches the version in package.json.
       # e.g. tag v5.0.1 must match package.json "version": "5.0.1"
       - name: Verify tag matches package.json version
         run: |
-          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          TAG_VERSION="${{ steps.tag.outputs.version }}"
+          TAG_VERSION="${TAG_VERSION#v}"
           PKG_VERSION=$(node -p "require('./package.json').version")
           if [ "$TAG_VERSION" != "$PKG_VERSION" ]; then
             echo "::error::Tag version ($TAG_VERSION) does not match package.json version ($PKG_VERSION)"
