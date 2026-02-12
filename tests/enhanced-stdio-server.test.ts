@@ -112,7 +112,7 @@ describe('MCP Protocol Tests', () => {
       expect(res.id).toBe(0);
       expect(res.result.protocolVersion).toBe('2024-11-05');
       expect(res.result.serverInfo.name).toBe('mcp-server-gemini-enhanced');
-      expect(res.result.serverInfo.version).toBe('5.0.0');
+      expect(res.result.serverInfo.version).toBe('0.5.0');
       expect(res.result.capabilities).toHaveProperty('tools');
       expect(res.result.capabilities).toHaveProperty('resources');
       expect(res.result.capabilities).toHaveProperty('prompts');
@@ -458,7 +458,7 @@ describe('MCP Protocol Tests', () => {
       });
 
       const text = res.result.content[0].text;
-      expect(text).toContain('v5.0.0');
+      expect(text).toContain('v0.5.0');
       expect(text).toContain('Gemini 3');
     });
 
