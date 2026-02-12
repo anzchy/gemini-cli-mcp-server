@@ -1,5 +1,8 @@
 # CI: lint, build, and test on every push and pull request.
 #
+# Integration tests (real Gemini API calls) only run on Node 22.
+# Node 18/20 run protocol-only tests to avoid hangs with --use-env-proxy.
+#
 # Required secrets (Settings → Secrets → Actions):
 #   GEMINI_API_KEY - enables integration tests against the real Gemini API
 
@@ -45,7 +48,9 @@ jobs:
           test -f dist/enhanced-stdio-server.js || { echo "::error::dist/enhanced-stdio-server.js not found"; exit 1; }
           head -1 dist/enhanced-stdio-server.js | grep -q '#!/usr/bin/env node' || { echo "::error::Missing shebang"; exit 1; }
 
+      # Integration tests only on Node 22 — older versions hang with --use-env-proxy.
+      # Node 18/20 still run the full protocol test suite (no API key → integration tests auto-skip).
       - name: Run tests
         env:
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_API_KEY: ${{ matrix.node-version == 22 && secrets.GEMINI_API_KEY || '' }}
         run: npm test
