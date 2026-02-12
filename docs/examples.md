@@ -18,7 +18,7 @@
        "gemini": {
          "type": "stdio",
          "command": "npx",
-         "args": ["-y", "github:aliargun/mcp-server-gemini"],
+         "args": ["-y", "github:anzchy/gemini-cli-mcp-server"],
          "env": {
            "GEMINI_API_KEY": "your_api_key_here"
          }
@@ -39,7 +39,7 @@
   "gemini": {
     "type": "stdio",
     "command": "npx",
-    "args": ["-y", "github:aliargun/mcp-server-gemini"],
+    "args": ["-y", "github:anzchy/gemini-cli-mcp-server"],
     "env": {
       "GEMINI_API_KEY": "your_api_key_here"
     }
@@ -52,12 +52,12 @@
 **Option A: CLI command (recommended)**
 ```bash
 claude mcp add --transport stdio --env GEMINI_API_KEY=your_api_key_here gemini \
-  -- npx -y github:aliargun/mcp-server-gemini
+  -- npx -y github:anzchy/gemini-cli-mcp-server
 ```
 
 **Option B: JSON config via CLI**
 ```bash
-claude mcp add-json gemini '{"type":"stdio","command":"npx","args":["-y","github:aliargun/mcp-server-gemini"],"env":{"GEMINI_API_KEY":"your_api_key_here"}}'
+claude mcp add-json gemini '{"type":"stdio","command":"npx","args":["-y","github:anzchy/gemini-cli-mcp-server"],"env":{"GEMINI_API_KEY":"your_api_key_here"}}'
 ```
 
 **Option C: Edit `~/.claude.json` directly**
@@ -67,7 +67,7 @@ claude mcp add-json gemini '{"type":"stdio","command":"npx","args":["-y","github
     "gemini": {
       "type": "stdio",
       "command": "npx",
-      "args": ["-y", "github:aliargun/mcp-server-gemini"],
+      "args": ["-y", "github:anzchy/gemini-cli-mcp-server"],
       "env": {
         "GEMINI_API_KEY": "your_api_key_here"
       }
@@ -83,14 +83,14 @@ Use `--scope user` to make the server available across all projects, or `--scope
 **Option A: CLI command**
 ```bash
 codex mcp add gemini --env GEMINI_API_KEY=your_api_key_here \
-  -- npx -y github:aliargun/mcp-server-gemini
+  -- npx -y github:anzchy/gemini-cli-mcp-server
 ```
 
 **Option B: Edit `~/.codex/config.toml` directly**
 ```toml
 [mcp_servers.gemini]
 command = "npx"
-args = ["-y", "github:aliargun/mcp-server-gemini"]
+args = ["-y", "github:anzchy/gemini-cli-mcp-server"]
 
 [mcp_servers.gemini.env]
 GEMINI_API_KEY = "your_api_key_here"
@@ -103,7 +103,7 @@ Project-scoped config can be placed in `.codex/config.toml` (trusted projects on
 **Option A: CLI command**
 ```bash
 gemini mcp add -e GEMINI_API_KEY=your_api_key_here gemini \
-  npx -y github:aliargun/mcp-server-gemini
+  npx -y github:anzchy/gemini-cli-mcp-server
 ```
 
 **Option B: Edit `~/.gemini/settings.json` directly**
@@ -112,7 +112,7 @@ gemini mcp add -e GEMINI_API_KEY=your_api_key_here gemini \
   "mcpServers": {
     "gemini": {
       "command": "npx",
-      "args": ["-y", "github:aliargun/mcp-server-gemini"],
+      "args": ["-y", "github:anzchy/gemini-cli-mcp-server"],
       "env": {
         "GEMINI_API_KEY": "your_api_key_here"
       }
@@ -130,7 +130,7 @@ Use the standard MCP stdio configuration:
 {
   "type": "stdio",
   "command": "npx",
-  "args": ["-y", "github:aliargun/mcp-server-gemini"],
+  "args": ["-y", "github:anzchy/gemini-cli-mcp-server"],
   "env": {
     "GEMINI_API_KEY": "your_api_key_here"
   }
@@ -322,7 +322,7 @@ For local development, point your MCP client to the local build:
     "gemini": {
       "type": "stdio",
       "command": "npx",
-      "args": ["-y", "github:aliargun/mcp-server-gemini"],
+      "args": ["-y", "github:anzchy/gemini-cli-mcp-server"],
       "env": {
         "GEMINI_API_KEY": "your_gemini_key"
       }

@@ -43,7 +43,7 @@ The configuration file location depends on your operating system:
     "gemini": {
       "type": "stdio",
       "command": "npx",
-      "args": ["-y", "github:aliargun/mcp-server-gemini"],
+      "args": ["-y", "github:anzchy/gemini-cli-mcp-server"],
       "env": {
         "GEMINI_API_KEY": "your_api_key_here"
       }

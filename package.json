@@ -45,16 +45,16 @@
     "windsurf",
     "typescript"
   ],
-  "author": "Ali Argun",
+  "author": "anzchy",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/aliargun/mcp-server-gemini.git"
+    "url": "git+https://github.com/anzchy/gemini-cli-mcp-server.git"
   },
   "bugs": {
-    "url": "https://github.com/aliargun/mcp-server-gemini/issues"
+    "url": "https://github.com/anzchy/gemini-cli-mcp-server/issues"
   },
-  "homepage": "https://github.com/aliargun/mcp-server-gemini#readme",
+  "homepage": "https://github.com/anzchy/gemini-cli-mcp-server#readme",
   "engines": {
     "node": ">=16.0.0"
   },

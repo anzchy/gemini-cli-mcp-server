@@ -10,7 +10,7 @@ This project follows a standard code of conduct. Please be respectful and constr
 
 ### Reporting Issues
 
-1. Check if the issue already exists in the [issue tracker](https://github.com/aliargun/mcp-server-gemini/issues)
+1. Check if the issue already exists in the [issue tracker](https://github.com/anzchy/gemini-cli-mcp-server/issues)
 2. If not, create a new issue with:
    - Clear description of the problem
    - Steps to reproduce

@@ -56,7 +56,7 @@ A powerful MCP (Model Context Protocol) server that brings Google's latest Gemin
        "gemini": {
          "type": "stdio",
          "command": "npx",
-         "args": ["-y", "github:aliargun/mcp-server-gemini"],
+         "args": ["-y", "github:anzchy/gemini-cli-mcp-server"],
          "env": {
            "GEMINI_API_KEY": "your_api_key_here"
          }
@@ -75,7 +75,7 @@ A powerful MCP (Model Context Protocol) server that brings Google's latest Gemin
      "gemini": {
        "type": "stdio",
        "command": "npx",
-       "args": ["-y", "github:aliargun/mcp-server-gemini"],
+       "args": ["-y", "github:anzchy/gemini-cli-mcp-server"],
        "env": {
          "GEMINI_API_KEY": "your_api_key_here"
        }
@@ -98,7 +98,7 @@ A powerful MCP (Model Context Protocol) server that brings Google's latest Gemin
    {
      "type": "stdio",
      "command": "npx",
-     "args": ["-y", "github:aliargun/mcp-server-gemini"],
+     "args": ["-y", "github:anzchy/gemini-cli-mcp-server"],
      "env": {
        "GEMINI_API_KEY": "your_api_key_here"
      }
@@ -154,7 +154,7 @@ Once configured, you can use natural language in your MCP client to access Gemin
 
 ```bash
 # Clone repository
-git clone https://github.com/aliargun/mcp-server-gemini.git
+git clone https://github.com/anzchy/gemini-cli-mcp-server.git
 cd mcp-server-gemini
 
 # Install dependencies

@@ -10,7 +10,7 @@
 
 2. Installation
 ```bash
-git clone https://github.com/aliargun/mcp-server-gemini.git
+git clone https://github.com/anzchy/gemini-cli-mcp-server.git
 cd mcp-server-gemini
 npm install
 ```

@@ -102,7 +102,7 @@ echo '{"jsonrpc":"2.0","id":0,"method":"initialize","params":{}}' | \
    - Check [implementation notes](implementation-notes.md)
 
 2. Open Issues
-   - Search existing issues at https://github.com/aliargun/mcp-server-gemini/issues
+   - Search existing issues at https://github.com/anzchy/gemini-cli-mcp-server/issues
    - Provide error details and reproduction steps
 
 3. Verify Your Setup
